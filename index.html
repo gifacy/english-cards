@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>英文單字大挑戰 - 主選單</title>
+    <style>
+        body { 
+            font-family: 'PingFang TC', 'Microsoft JhengHei', sans-serif; 
+            background-color: #f0f4f8; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            min-height: 100vh; 
+            margin: 0; 
+        }
+        .menu-container { 
+            text-align: center; 
+            background: white; 
+            padding: 30px; 
+            border-radius: 35px; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1); 
+            width: 350px; 
+            border: 6px solid #a5d8ff; 
+        }
+        h1 { 
+            color: #1c7ed6; 
+            font-size: 28px; 
+            margin-bottom: 5px; 
+        }
+        .subtitle {
+            color: #7f8c8d;
+            font-size: 16px;
+            margin-bottom: 30px;
+        }
+        .menu-btn { 
+            display: block; 
+            width: 100%; 
+            padding: 15px 0; 
+            margin: 18px 0; 
+            font-size: 18px; 
+            color: white; 
+            text-decoration: none; 
+            border-radius: 50px; 
+            font-weight: bold; 
+            transition: 0.1s; 
+            box-sizing: border-box;
+        }
+        /* 一年級按鈕顏色（粉橘色系） */
+        .btn-g1 {
+            background-color: #ff9244; 
+            box-shadow: 0 5px 0 #e67e22;
+        }
+        .btn-g1:active { 
+            transform: translateY(3px); 
+            box-shadow: 0 2px 0 #e67e22; 
+        }
+        /* 二年級按鈕顏色（藍色系） */
+        .btn-g2 {
+            background-color: #339af0; 
+            box-shadow: 0 5px 0 #1c7ed6;
+        }
+        .btn-g2:active { 
+            transform: translateY(3px); 
+            box-shadow: 0 2px 0 #1c7ed6; 
+        }
+    </style>
+</head>
+<body>
+<div class="menu-container">
+    <h1>🎒 單字大挑戰</h1>
+    <div class="subtitle">選一個年級開始挑戰吧！</div>
+    
+    <!-- 連結到一年級下學期的檔案 -->
+    <a href="ssgrade1s2v120.html" class="menu-btn btn-g1">一年級下學期 (120單字) ➔</a>
+    
+    <!-- 連結到二年級上學期的檔案 -->
+    <a href="ssgrade2s1v150.html" class="menu-btn btn-g2">二年級上學期 (150單字) ➔</a>
+</div>
+</body>
+</html>
