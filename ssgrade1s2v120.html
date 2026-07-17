@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>一年級下學期120單字大挑戰</title>
+    <style>
+        body { font-family: 'PingFang TC', 'Microsoft JhengHei', sans-serif; background-color: #f0f4f8; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        .container { text-align: center; background: white; padding: 20px; border-radius: 35px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 380px; border: 6px solid #a5d8ff; margin: 20px; }
+        .progress { color: #4dabf7; font-weight: bold; margin-bottom: 10px; font-size: 18px; }
+        .card { cursor: pointer; padding: 20px; border: 4px solid #4dabf7; border-radius: 25px; margin-bottom: 20px; background-color: #ffffff; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 400px; position: relative; overflow: hidden; }
+        .initial-icon { width: 80px; height: 80px; line-height: 80px; border-radius: 50%; background-color: #4dabf7; color: white; font-size: 50px; font-weight: bold; margin-bottom: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .english { font-size: 45px; font-weight: bold; color: #1c7ed6; display: block; min-height: 60px; margin-bottom: 10px; word-break: break-word; line-height: 1.1; width: 90%; }
+        .is-hidden { color: #f1f3f5 !important; letter-spacing: 5px; } 
+        .chinese-area { display: flex; justify-content: center; align-items: flex-start; gap: 4px; flex-wrap: wrap; width: 100%; }
+        .char-unit { display: inline-flex; align-items: center; position: relative; padding-right: 20px; margin: 5px 0; }
+        .main-char { font-size: 40px; font-weight: bold; color: #2c3e50; line-height: 1.1; }
+        .bopomofo-container { position: absolute; right: 2px; top: 50%; transform: translateY(-50%); display: flex; align-items: center; }
+        .bopomofo-text { writing-mode: vertical-rl; font-size: 16px; color: #7f8c8d; line-height: 1; letter-spacing: 1px; text-orientation: upright; }
+        .tone { position: absolute; right: -10px; top: 50%; transform: translateY(-50%); font-size: 14px; color: #7f8c8d; font-weight: bold; }
+        .tone-light { position: absolute; right: 4px; top: -12px; font-size: 14px; color: #7f8c8d; }
+        .btn-next { width: 100%; padding: 15px; font-size: 22px; background-color: #339af0; color: white; border: none; border-radius: 50px; cursor: pointer; font-weight: bold; box-shadow: 0 5px 0 #1c7ed6; }
+        .btn-next:active { transform: translateY(3px); box-shadow: 0 2px 0 #1c7ed6; }
+        .reset-btn { margin-top: 15px; color: #adb5bd; cursor: pointer; font-size: 13px; text-decoration: underline; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div id="progress" class="progress">1 / 120</div>
+    <div class="card" id="wordCard" onclick="handleCardClick()">
+        <div id="wordIcon" class="initial-icon">?</div>
+        <div class="english" id="enWord">???</div>
+        <div class="chinese-area" id="chineseContainer"></div>
+    </div>
+    <button class="btn-next" onclick="nextWord()">下一題 (Next) ➔</button>
+    <div class="reset-btn" onclick="shuffleAndStart()">打亂順序重新開始</div>
+</div>
+
+<script>
+    const originalWords = [
+        {en:'cake',zh:'蛋糕',zy:['ㄉㄢˋ','ㄍㄠ'],tone:['ˋ','']},
+        {en:'bake',zh:'烘烤',zy:['ㄏㄨㄥ','ㄎㄠˇ'],tone:['','ˇ']},
+        {en:'lake',zh:'湖',zy:['ㄏㄨˊ'],tone:['ˊ']},
+        {en:'rake',zh:'耙子',zy:['ㄆㄚˊ','ㄗ'],tone:['ˊ','˙']},
+        {en:'tape',zh:'膠帶',zy:['ㄐㄧㄠ','ㄉㄞˋ'],tone:['','ˋ']},
+        {en:'cave',zh:'洞穴',zy:['ㄉㄨㄥˋ','ㄒㄩㄝˋ'],tone:['ˋ','ˋ']},
+        {en:'game',zh:'遊戲',zy:['ㄧㄡˊ','ㄒㄧˋ'],tone:['ˊ','ˋ']},
+        {en:'name',zh:'名字',zy:['ㄇㄧㄥˊ','ㄗ'],tone:['ˊ','˙']},
+        {en:'cane',zh:'拐杖',zy:['ㄍㄨㄞˇ','ㄓㄤˋ'],tone:['ˇ','ˋ']},
+        {en:'vase',zh:'花瓶',zy:['ㄏㄨㄚ','ㄆㄧㄥˊ'],tone:['','ˊ']},
+        {en:'why',zh:'為什麼',zy:['ㄨㄟˋ','ㄕㄣˊ','ㄇㄜ'],tone:['ˋ','ˊ','˙']},
+        {en:'because',zh:'因為',zy:['ㄧㄣ','ㄨㄟˋ'],tone:['','ˋ']},
+        {en:'so',zh:'如此',zy:['ㄖㄨˊ','ㄘˇ'],tone:['ˊ','ˇ']},
+        {en:'out',zh:'向外',zy:['ㄒㄧㄤˋ','ㄨㄞˋ'],tone:['ˋ','ˋ']},
+        {en:'waddle',zh:'搖擺走',zy:['ㄧㄠˊ','ㄅㄞˇ','ㄗㄡˇ'],tone:['ˊ','ˇ','ˇ']},
+        {en:'duckling',zh:'小鴨',zy:['ㄒㄧㄠˇ','ㄧㄚ'],tone:['ˇ','']},
+        {en:'feather',zh:'羽毛',zy:['ㄩˇ','ㄇㄠˊ'],tone:['ˇ','ˊ']},
+        {en:'before',zh:'之前',zy:['ㄓ','ㄑㄧㄢˊ'],tone:['','ˊ']},
+        {en:'after',zh:'之後',zy:['ㄓ','ㄏㄡˋ'],tone:['','ˋ']},
+        {en:'water',zh:'水',zy:['ㄕㄨㄟˇ'],tone:['ˇ']},
+        {en:'blossom',zh:'花朵',zy:['ㄏㄨㄚ','ㄉㄨㄛˇ'],tone:['','ˇ']},
+        {en:'pumpkin',zh:'南瓜',zy:['ㄋㄢˊ','ㄍㄨㄚ'],tone:['ˊ','']},
+        {en:'hamster',zh:'倉鼠',zy:['ㄘㄤ','ㄕㄨˇ'],tone:['','ˇ']},
+        {en:'snake',zh:'蛇',zy:['ㄕㄜˊ'],tone:['ˊ']},
+        {en:'parrot',zh:'鸚鵡',zy:['ㄧㄥ','ㄨˇ'],tone:['','ˇ']},
+        {en:'rabbit',zh:'兔子',zy:['ㄊㄨˋ','ㄗ'],tone:['ˋ','˙']},
+        {en:'turtle',zh:'烏龜',zy:['ㄨ','ㄍㄨㄟ'],tone:['','']},
+        {en:'sound',zh:'聲音',zy:['ㄕㄥ','ㄧㄣ'],tone:['','']},
+        {en:'source',zh:'來源',zy:['ㄌㄞˊ','ㄩㄢˊ'],tone:['ˊ','ˊ']},
+        {en:'repair',zh:'修理',zy:['ㄒㄧㄡ','ㄌㄧˇ'],tone:['','ˇ']},
+        {en:'case',zh:'盒子',zy:['ㄏㄜˊ','ㄗ'],tone:['ˊ','˙']},
+        {en:'gate',zh:'大門',zy:['ㄉㄚˋ','ㄇㄣˊ'],tone:['ˋ','ˊ']},
+        {en:'nine',zh:'九',zy:['ㄐㄧㄡˇ'],tone:['ˇ']},
+        {en:'pine',zh:'松樹',zy:['ㄙㄨㄥ','ㄕㄨˋ'],tone:['','ˋ']},
+        {en:'bike',zh:'腳踏車',zy:['ㄐㄧㄠˇ','ㄊㄚˋ','ㄔㄜ'],tone:['ˇ','ˋ','']},
+        {en:'hike',zh:'健行',zy:['ㄐㄧㄢˋ','ㄒㄧㄥˊ'],tone:['ˋ','ˊ']},
+        {en:'time',zh:'時間',zy:['ㄕˊ','ㄐㄧㄢ'],tone:['ˊ','']},
+        {en:'lime',zh:'萊姆',zy:['ㄌㄞˊ','ㄇㄨˇ'],tone:['ˊ','ˇ']},
+        {en:'ride',zh:'騎',zy:['ㄑㄧˊ'],tone:['ˊ']},
+        {en:'hide',zh:'躲藏',zy:['ㄉㄨㄛˇ','ㄘㄤˊ'],tone:['ˇ','ˊ']},
+        {en:'many',zh:'許多',zy:['ㄒㄩˇ','ㄉㄨㄛ'],tone:['ˇ','']},
+        {en:'they',zh:'他們',zy:['ㄊㄚ','ㄇㄣ'],tone:['','˙']},
+        {en:'all',zh:'全部',zy:['ㄑㄩㄢˊ','ㄅㄨˋ'],tone:['ˊ','ˋ']},
+        {en:'eat',zh:'吃',zy:['ㄔ'],tone:['']},
+        {en:'animal',zh:'動物',zy:['ㄉㄨㄥˋ','ㄨˋ'],tone:['ˋ','ˋ']},
+        {en:'bird',zh:'鳥',zy:['ㄋㄧㄠˇ'],tone:['ˇ']},
+        {en:'food chain',zh:'食物鏈',zy:['ㄕˊ','ㄨˋ','ㄌㄧㄢˋ'],tone:['ˊ','ˋ','ˋ']},
+        {en:'one',zh:'一',zy:['ㄧ'],tone:['']},
+        {en:'two',zh:'二',zy:['ㄦˋ'],tone:['ˋ']},
+        {en:'want',zh:'想要',zy:['ㄒㄧㄤˇ','ㄧㄠˋ'],tone:['ˇ','ˋ']},
+        {en:'from',zh:'來自',zy:['ㄌㄞˊ','ㄗˋ'],tone:['ˊ','ˋ']},
+        {en:'bought',zh:'買',zy:['ㄇㄞˇ'],tone:['ˇ']},
+        {en:'swim',zh:'游泳',zy:['ㄧㄡˊ','ㄩㄥˇ'],tone:['ˊ','ˇ']},
+        {en:'sing',zh:'唱歌',zy:['ㄔㄤˋ','ㄍㄜ'],tone:['ˋ','']},
+        {en:'read',zh:'讀',zy:['ㄉㄨˊ'],tone:['ˊ']},
+        {en:'write',zh:'寫',zy:['ㄒㄧㄝˇ'],tone:['ˇ']},
+        {en:'draw',zh:'畫',zy:['ㄏㄨㄚˋ'],tone:['ˋ']},
+        {en:'electricity',zh:'電',zy:['ㄉㄧㄢˋ'],tone:['ˋ']},
+        {en:'globe',zh:'地球儀',zy:['ㄉㄧˋ','ㄑㄧㄡˊ','ㄧˊ'],tone:['ˋ','ˊ','ˊ']},
+        {en:'heat',zh:'熱能',zy:['ㄖㄜˋ','ㄋㄥˊ'],tone:['ˋ','ˊ']},
+        {en:'wipe',zh:'擦拭',zy:['ㄘㄚ','ㄕˋ'],tone:['','ˋ']},
+        {en:'kite',zh:'風箏',zy:['ㄈㄥ','ㄓㄥ'],tone:['','']},
+        {en:'bite',zh:'咬',zy:['ㄧㄠˇ'],tone:['ˇ']},
+        {en:'five',zh:'五',zy:['ㄨˇ'],tone:['ˇ']},
+        {en:'hose',zh:'水管',zy:['ㄕㄨㄟˇ','ㄍㄨㄢˇ'],tone:['ˇ','ˇ']},
+        {en:'rose',zh:'玫瑰',zy:['ㄇㄟˊ','ㄍㄨㄟ'],tone:['ˊ','']},
+        {en:'rope',zh:'繩子',zy:['ㄕㄥ','ㄗ'],tone:['','˙']},
+        {en:'hope',zh:'希望',zy:['ㄒㄧ','ㄨㄤˋ'],tone:['','ˋ']},
+        {en:'note',zh:'便條',zy:['ㄅㄧㄢˋ','ㄊㄧㄠˊ'],tone:['ˋ','ˊ']},
+        {en:'vote',zh:'投票',zy:['ㄊㄡˊ','ㄆㄧㄠˋ'],tone:['ˊ','ˋ']},
+        {en:'soccer',zh:'足球',zy:['ㄗㄨˊ','ㄑㄧㄡˊ'],tone:['ˊ','ˊ']},
+        {en:'ball',zh:'球',zy:['ㄑㄧㄡˊ'],tone:['ˊ']},
+        {en:'best',zh:'最好',zy:['ㄗㄨㄟˋ','ㄏㄠˇ'],tone:['ˋ','ˇ']},
+        {en:'know',zh:'知道',zy:['ㄓ','ㄉㄠˋ'],tone:['','ˋ']},
+        {en:'live',zh:'住在',zy:['ㄓㄨˋ','ㄗㄞˋ'],tone:['ˋ','ˋ']},
+        {en:'cello',zh:'大提琴',zy:['ㄉㄚˋ','ㄊㄧˊ','ㄑㄧㄣˊ'],tone:['ˋ','ˊ','ˊ']},
+        {en:'world',zh:'世界',zy:['ㄕˋ','ㄐㄧㄝˋ'],tone:['ˋ','ˋ']},
+        {en:'play',zh:'玩',zy:['ㄨㄢˊ'],tone:['ˊ']},
+        {en:'where',zh:'在哪裡',zy:['ㄗㄞˋ','ㄋㄚˇ','ㄌㄧˇ'],tone:['ˋ','ˇ','ˇ']},
+        {en:'work',zh:'工作',zy:['ㄍㄨㄥ','ㄗㄨㄛˋ'],tone:['','ˋ']},
+        {en:'again',zh:'再一次',zy:['ㄗㄞˋ','ㄧ','ㄘˋ'],tone:['ˋ','','ˋ']},
+        {en:'chef',zh:'廚師',zy:['ㄔㄨˊ','ㄕ'],tone:['ˊ','']},
+        {en:'banana',zh:'香蕉',zy:['ㄒㄧㄤ','ㄐㄧㄠ'],tone:['','']},
+        {en:'cereal',zh:'穀片',zy:['ㄍㄨˇ','ㄆㄧㄢˋ'],tone:['ˇ','ˋ']},
+        {en:'yogurt',zh:'優格',zy:['ㄧㄡ','ㄍㄜˊ'],tone:['','ˊ']},
+        {en:'cheese',zh:'起司',zy:['ㄑㄧˇ','ㄙ'],tone:['ˇ','']},
+        {en:'juice',zh:'果汁',zy:['ㄍㄨㄛˇ','ㄓ'],tone:['ˇ','']},
+        {en:'attract',zh:'吸引',zy:['ㄒㄧ','ㄧㄣˇ'],tone:['','ˇ']},
+        {en:'magnet',zh:'磁鐵',zy:['ㄘˊ','ㄊㄧㄝˇ'],tone:['ˊ','ˇ']},
+        {en:'repel',zh:'排斥',zy:['ㄆㄞˊ','ㄔˋ'],tone:['ˊ','ˋ']},
+        {en:'hole',zh:'洞',zy:['ㄉㄨㄥˋ'],tone:['ˋ']},
+        {en:'pole',zh:'杆子',zy:['ㄍㄢ','ㄗ'],tone:['','˙']},
+        {en:'home',zh:'家',zy:['ㄐㄧㄚ'],tone:['']},
+        {en:'bone',zh:'骨頭',zy:['ㄍㄨˇ','ㄊㄡˊ'],tone:['ˇ','ˊ']},
+        {en:'cone',zh:'圓錐體',zy:['ㄩㄢˊ','ㄓㄨㄟ','ㄊㄧˇ'],tone:['ˊ','','ˇ']},
+        {en:'cube',zh:'立方體',zy:['ㄌㄧˋ','ㄈㄤ','ㄊㄧˇ'],tone:['ˋ','','ˇ']},
+        {en:'tube',zh:'管子',zy:['ㄍㄨㄢˇ','ㄗ'],tone:['ˇ','˙']},
+        {en:'cute',zh:'可愛',zy:['ㄎㄜˇ','ㄞˋ'],tone:['ˇ','ˋ']},
+        {en:'dune',zh:'沙丘',zy:['ㄕㄚ','ㄑㄧㄡ'],tone:['','']},
+        {en:'mule',zh:'騾子',zy:['ㄌㄨㄛˊ','ㄗ'],tone:['ˊ','˙']},
+        {en:'cruise',zh:'郵輪',zy:['ㄧㄡˊ','ㄌㄨㄣˊ'],tone:['ˊ','ˊ']},
+        {en:'crew',zh:'船員',zy:['ㄔㄨㄢˊ','ㄩㄢˊ'],tone:['ˊ','ˊ']},
+        {en:'together',zh:'一起',zy:['ㄧ','ㄑㄧˇ'],tone:['','ˇ']},
+        {en:'open',zh:'打開',zy:['ㄉㄚˇ','ㄎㄞ'],tone:['ˇ','']},
+        {en:'come',zh:'來',zy:['ㄌㄞˊ'],tone:['ˊ']},
+        {en:'friend',zh:'朋友',zy:['ㄆㄥˊ','ㄧㄡˇ'],tone:['ˊ','ˇ']},
+        {en:'music',zh:'音樂',zy:['ㄧㄣ','ㄩㄝˋ'],tone:['','ˋ']},
+        {en:'watch over',zh:'照顧',zy:['ㄓㄠˋ','ㄍㄨˋ'],tone:['ˋ','ˋ']},
+        {en:'baby',zh:'嬰兒',zy:['ㄧㄥ','ㄦˊ'],tone:['','ˊ']},
+        {en:'different',zh:'不同',zy:['ㄅㄨˋ','ㄊㄨㄥˊ'],tone:['ˋ','ˊ']},
+        {en:'hippopotamus',zh:'河馬',zy:['ㄏㄜˊ','ㄇㄚˇ'],tone:['ˊ','ˇ']},
+        {en:'tortoise',zh:'陸龜',zy:['ㄌㄨˋ','ㄍㄨㄟ'],tone:['ˋ','']},
+        {en:'sunny',zh:'晴天',zy:['ㄑㄧㄥˊ','ㄊㄧㄢ'],tone:['ˊ','']},
+        {en:'windy',zh:'有風',zy:['ㄧㄡˇ','ㄈㄥ'],tone:['ˇ','']},
+        {en:'rainy',zh:'下雨',zy:['ㄒㄧㄚˋ','ㄩˇ'],tone:['ˋ','ˇ']},
+        {en:'snowy',zh:'下雪',zy:['ㄒㄧㄚˋ','ㄒㄩㄝˇ'],tone:['ˋ','ˇ']},
+        {en:'cloudy',zh:'多雲',zy:['ㄉㄨㄛ','ㄩㄣˊ'],tone:['','ˊ']},
+        {en:'land',zh:'陸地',zy:['ㄌㄨˋ','ㄉㄧˋ'],tone:['ˋ','ˋ']},
+        {en:'planet',zh:'行星',zy:['ㄒㄧㄥ','ㄒㄧㄥ'],tone:['','']},
+        {en:'soil',zh:'土壤',zy:['ㄊㄨˇ','ㄖㄤˇ'],tone:['ˇ','ˇ']}
+    ];
+
+    let currentList = [...originalWords];
+    let idx = 0;
+    let isRevealed = false;
+    const colors = ['#4dabf7', '#74c0fc', '#339af0', '#228be6', '#1c7ed6', '#4263eb', '#3b5bdb'];
+
+    function init() {
+        currentList = [...originalWords];
+        idx = 0;
+        update();
+    }
+
+    function shuffleAndStart() {
+        currentList = [...originalWords].sort(() => Math.random() - 0.5);
+        idx = 0;
+        update();
+    }
+
+    function update() {
+        isRevealed = false;
+        const item = currentList[idx];
+        const enDisplay = document.getElementById('enWord');
+        const container = document.getElementById('chineseContainer');
+        const card = document.getElementById('wordCard');
+        
+        card.classList.remove('show-answer');
+        document.getElementById('progress').innerText = `${idx + 1} / ${currentList.length}`;
+        
+        enDisplay.innerText = "???";
+        enDisplay.classList.add('is-hidden');
+        
+        container.innerHTML = '';
+        item.zh.split('').forEach((char, i) => {
+            const pureZy = item.zy[i].replace(/[ˊˇˋ˙]/g, '');
+            const toneMark = item.tone[i];
+            let toneClass = (toneMark === '˙') ? "tone-light" : "tone";
+
+            const unit = document.createElement('div');
+            unit.className = 'char-unit';
+            unit.innerHTML = `
+                <span class="main-char">${char}</span>
+                <div class="bopomofo-container">
+                    <span class="bopomofo-text">${pureZy}</span>
+                    <span class="${toneClass}">${toneMark}</span>
+                </div>
+            `;
+            container.appendChild(unit);
+        });
+        
+        const icon = document.getElementById('wordIcon');
+        icon.innerText = item.en.charAt(0).toUpperCase();
+        icon.style.backgroundColor = colors[idx % colors.length];
+        
+        // 針對長英文單字調整
+        if(item.en.length > 10) {
+            enDisplay.style.fontSize = '30px';
+        } else if(item.en.length > 7) {
+            enDisplay.style.fontSize = '40px';
+        } else {
+            enDisplay.style.fontSize = '52px';
+        }
+    }
+
+    function handleCardClick() {
+        if (!isRevealed) {
+            isRevealed = true;
+            const item = currentList[idx];
+            const enDisplay = document.getElementById('enWord');
+            enDisplay.innerText = item.en;
+            enDisplay.classList.remove('is-hidden');
+            document.getElementById('wordCard').classList.add('show-answer');
+        }
+        speak();
+    }
+
+    function speak() {
+        const msg = new SpeechSynthesisUtterance(currentList[idx].en);
+        msg.lang = 'en-US';
+        msg.rate = 0.7;
+        window.speechSynthesis.cancel();
+        window.speechSynthesis.speak(msg);
+    }
+
+    function nextWord() {
+        idx = (idx + 1) % currentList.length;
+        update();
+    }
+
+    init();
+</script>
+</body>
+</html>
